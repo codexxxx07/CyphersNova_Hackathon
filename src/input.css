@@ -315,6 +315,10 @@
     @apply bg-[#1e293b] text-white;
     box-shadow: 4px 4px 0px 0px #ffffff;
   }
+
+  body.dark-mode #hero-validation-close {
+    @apply text-black;
+  }
 }
 
 @layer utilities {

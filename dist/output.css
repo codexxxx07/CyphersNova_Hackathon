@@ -1386,6 +1386,11 @@ body.dark-mode #team .team-social-link:hover {
   box-shadow: 4px 4px 0px 0px #ffffff;
 }
 
+body.dark-mode #hero-validation-close {
+  --tw-text-opacity: 1;
+  color: rgb(0 0 0 / var(--tw-text-opacity, 1));
+}
+
 .static {
   position: static;
 }
