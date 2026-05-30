@@ -55,11 +55,55 @@
         <button id="generate-btn" class="btn-brutal-primary mt-4 w-full text-lg">
           Generate Roadmap
         </button>
-        <p class="mt-4 text-sm font-medium text-gray-600">
-          Try keywords like <strong>coding</strong>, <strong>NEET</strong>, or <strong>business</strong>
-        </p>
+
+        <div class="mt-8">
+          <p class="mb-4 text-sm font-bold uppercase tracking-wide text-gray-800">
+            Try these examples:
+          </p>
+          <div class="flex flex-wrap justify-center gap-3">
+            <button
+              type="button"
+              class="example-chip btn-brutal-outline text-sm py-2 px-4"
+              data-example="Become a Full Stack Developer"
+            >
+              Become a Full Stack Developer
+            </button>
+            <button
+              type="button"
+              class="example-chip btn-brutal-outline text-sm py-2 px-4"
+              data-example="Learn Cybersecurity"
+            >
+              Learn Cybersecurity
+            </button>
+            <button
+              type="button"
+              class="example-chip btn-brutal-outline text-sm py-2 px-4"
+              data-example="Become a Data Scientist"
+            >
+              Become a Data Scientist
+            </button>
+            <button
+              type="button"
+              class="example-chip btn-brutal-outline text-sm py-2 px-4"
+              data-example="Crack GATE CSE"
+            >
+              Crack GATE CSE
+            </button>
+          </div>
+        </div>
       </div>
     </div>
+    <script>
+      (function () {
+        var input = document.getElementById('hero-input');
+        document.querySelectorAll('#home .example-chip').forEach(function (chip) {
+          chip.addEventListener('click', function () {
+            input.value = chip.getAttribute('data-example');
+            input.focus();
+          });
+        });
+      })();
+    </script>
   </section>
 
   <!-- Roadmap -->

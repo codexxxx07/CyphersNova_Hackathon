@@ -119,7 +119,7 @@ function renderSavedRoadmaps() {
     });
 
     card.querySelector('.delete-saved-btn').addEventListener('click', () => {
-      deleteSavedRoadmap(roadmap.id);
+      showDeleteConfirmModal(roadmap.id);
     });
 
     savedRoadmapsList.appendChild(card);
@@ -155,6 +155,48 @@ function deleteSavedRoadmap(id) {
   if (pendingRoadmap && pendingRoadmap.id === id) {
     updateRoadmapSaveUI(id);
   }
+}
+
+function closeDeleteConfirmModal(overlay) {
+  overlay.remove();
+  document.body.classList.remove('overflow-hidden');
+}
+
+function showDeleteConfirmModal(roadmapId) {
+  const overlay = document.createElement('div');
+  overlay.className =
+    'fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.setAttribute('aria-labelledby', 'delete-confirm-message');
+
+  overlay.innerHTML = `
+    <div
+      class="relative flex w-full max-w-md flex-col items-center gap-4 border-4 border-black bg-white p-8 text-center"
+      style="box-shadow: 6px 6px 0 #000"
+    >
+      <p id="delete-confirm-message" class="pt-2 text-base font-bold text-black md:text-lg">
+        ⚠️ Are you sure you want to delete this roadmap?
+      </p>
+      <div class="flex flex-wrap justify-center gap-3">
+        <button type="button" class="delete-confirm-yes btn-brutal-outline border-[3px] border-black bg-white text-sm font-bold py-2 px-4 text-red-600"
+                style="box-shadow: 4px 4px 0 #000">Delete</button>
+        <button type="button" class="delete-confirm-cancel btn-brutal-primary text-sm py-2 px-4">Cancel</button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+  document.body.classList.add('overflow-hidden');
+
+  overlay.querySelector('.delete-confirm-yes').addEventListener('click', () => {
+    deleteSavedRoadmap(roadmapId);
+    closeDeleteConfirmModal(overlay);
+  });
+
+  overlay.querySelector('.delete-confirm-cancel').addEventListener('click', () => {
+    closeDeleteConfirmModal(overlay);
+  });
 }
 
 function migrateLegacyRoadmap() {
