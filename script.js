@@ -714,7 +714,25 @@ function init() {
     if (e.key === 'Enter') addTask();
   });
 
-  chatSendBtn.addEventListener('click', handleChatSend);
+  chatSendBtn.addEventListener('click', () => {
+    if (!chatInput.value.trim()) {
+      const heroValidationMessage = document.getElementById('hero-validation-message');
+      const defaultHeroValidationMessage =
+        '⚠️ Please enter your study goal or situation first!';
+      heroValidationMessage.textContent = '⚠️ Please enter a message.';
+      showHeroValidationAlert();
+      chatInput.focus();
+      const restoreHeroValidationMessage = () => {
+        heroValidationMessage.textContent = defaultHeroValidationMessage;
+      };
+      heroValidationOk.addEventListener('click', restoreHeroValidationMessage, { once: true });
+      heroValidationClose.addEventListener('click', restoreHeroValidationMessage, {
+        once: true,
+      });
+      return;
+    }
+    handleChatSend();
+  });
   chatInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') handleChatSend();
   });
