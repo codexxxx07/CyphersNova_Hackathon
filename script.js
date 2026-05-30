@@ -79,8 +79,71 @@ function updateRoadmapSaveUI(roadmapId) {
   roadmapSavedMsg.classList.toggle('hidden', !saved);
 }
 
+const ROADMAP_LOADING_MESSAGES = [
+  'Analyzing your goal...',
+  'Identifying required skills...',
+  'Building your learning path...',
+  'Preparing roadmap...',
+];
+
+let roadmapLoadingTimers = [];
+let roadmapLoadingActive = false;
+
+function clearRoadmapLoadingTimers() {
+  roadmapLoadingTimers.forEach((id) => {
+    clearTimeout(id);
+    clearInterval(id);
+  });
+  roadmapLoadingTimers = [];
+}
+
+function stopRoadmapLoading() {
+  roadmapLoadingActive = false;
+  clearRoadmapLoadingTimers();
+}
+
+function roadmapLoadingDelay() {
+  return 700 + Math.floor(Math.random() * 501);
+}
+
+function showRoadmapLoadingState(message) {
+  roadmapSection.classList.remove('hidden');
+  roadmapActions.classList.add('hidden');
+  roadmapCards.innerHTML = '';
+
+  const loader = document.createElement('div');
+  loader.className = 'card-brutal';
+  loader.innerHTML = `
+    <p id="roadmap-loading-text" class="font-medium text-gray-700" style="opacity: 1; transition: opacity 0.25s ease">${escapeHtml(message)}</p>
+  `;
+  roadmapCards.appendChild(loader);
+}
+
+function setRoadmapLoadingMessage(message) {
+  const el = document.getElementById('roadmap-loading-text');
+  if (!el || !roadmapLoadingActive) return;
+
+  el.style.opacity = '0';
+  const fadeInId = setTimeout(() => {
+    if (!roadmapLoadingActive) return;
+    const current = document.getElementById('roadmap-loading-text');
+    if (!current) return;
+    current.textContent = message;
+    current.style.opacity = '1';
+  }, 250);
+  roadmapLoadingTimers.push(fadeInId);
+}
+
+function scheduleRoadmapLoadingTimer(callback, delay) {
+  const id = setTimeout(callback, delay);
+  roadmapLoadingTimers.push(id);
+  return id;
+}
+
 function renderRoadmap(data, { fromSaved = false } = {}) {
   if (!data) return;
+
+  stopRoadmapLoading();
 
   roadmapTitle.textContent = data.title;
   roadmapCards.innerHTML = '';
@@ -265,6 +328,12 @@ function hideHeroValidationAlert() {
   document.body.classList.remove('overflow-hidden');
 }
 
+function resetGenerateButton(originalText) {
+  generateBtn.textContent = originalText;
+  generateBtn.disabled = false;
+  generateBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+}
+
 function handleGenerateRoadmap() {
   const input = heroInput.value.trim();
   if (!input) {
@@ -274,27 +343,72 @@ function handleGenerateRoadmap() {
 
   hideHeroValidationAlert();
 
+  stopRoadmapLoading();
+
   const originalText = generateBtn.textContent;
   generateBtn.textContent = 'Generating…';
   generateBtn.disabled = true;
   generateBtn.classList.add('opacity-75', 'cursor-not-allowed');
 
-  setTimeout(() => {
+  roadmapLoadingActive = true;
+  let messageIndex = 0;
+  let messagesShown = 1;
+  let roadmapData = null;
+  let finished = false;
+
+  showRoadmapLoadingState(ROADMAP_LOADING_MESSAGES[0]);
+  roadmapSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  const tryCompleteLoading = () => {
+    if (finished || !roadmapLoadingActive) return;
+    if (!roadmapData || messagesShown < 2) return;
+
+    finished = true;
+    stopRoadmapLoading();
+
+    pendingRoadmap = roadmapData;
+    renderRoadmap(pendingRoadmap);
+    roadmapSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    resetGenerateButton(originalText);
+  };
+
+  const advanceLoadingMessage = () => {
+    if (!roadmapLoadingActive || finished) return;
+
+    messageIndex += 1;
+    if (messageIndex >= ROADMAP_LOADING_MESSAGES.length) {
+      tryCompleteLoading();
+      return;
+    }
+
+    setRoadmapLoadingMessage(ROADMAP_LOADING_MESSAGES[messageIndex]);
+    messagesShown += 1;
+    tryCompleteLoading();
+
+    scheduleRoadmapLoadingTimer(advanceLoadingMessage, roadmapLoadingDelay());
+  };
+
+  scheduleRoadmapLoadingTimer(advanceLoadingMessage, roadmapLoadingDelay());
+
+  scheduleRoadmapLoadingTimer(() => {
+    if (!roadmapLoadingActive || finished) return;
+
     const roadmap = generateRoadmap(input);
     if (roadmap) {
-      pendingRoadmap = {
+      roadmapData = {
         id: Date.now(),
         title: roadmap.title,
         steps: roadmap.steps,
         goalInput: input,
       };
-      renderRoadmap(pendingRoadmap);
-      roadmapSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      tryCompleteLoading();
+      return;
     }
 
-    generateBtn.textContent = originalText;
-    generateBtn.disabled = false;
-    generateBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+    finished = true;
+    stopRoadmapLoading();
+    roadmapCards.innerHTML = '';
+    resetGenerateButton(originalText);
   }, 800);
 }
 
