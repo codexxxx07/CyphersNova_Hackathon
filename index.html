@@ -159,6 +159,35 @@
     <p class="mt-2 text-sm text-gray-400">Built for students. No backend needed.</p>
   </footer>
 
+  <div
+    id="hero-validation-alert"
+    class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="hero-validation-message"
+  >
+    <div
+      class="relative flex w-full max-w-md flex-col items-center gap-4 border-4 border-black bg-white p-8 text-center"
+      style="box-shadow: 6px 6px 0 #000"
+    >
+      <button
+        type="button"
+        id="hero-validation-close"
+        class="absolute right-4 top-4 flex h-8 w-8 items-center justify-center border-[3px] border-black bg-white text-base font-black leading-none"
+        style="box-shadow: 2px 2px 0 #000"
+        aria-label="Close"
+      >
+        ✕
+      </button>
+      <p id="hero-validation-message" class="pt-2 text-base font-bold text-black md:text-lg">
+        ⚠️ Please enter your study goal or situation first!
+      </p>
+      <button type="button" id="hero-validation-ok" class="btn-brutal-primary text-sm py-2 px-4">
+        Got it
+      </button>
+    </div>
+  </div>
+
   <script src="data.js"></script>
   <script src="utils.js"></script>
   <script src="script.js"></script>

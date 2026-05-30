@@ -3,6 +3,9 @@ let currentRoadmap = loadFromStorage(STORAGE_KEYS.ROADMAP, null);
 
 const heroInput = document.getElementById('hero-input');
 const generateBtn = document.getElementById('generate-btn');
+const heroValidationAlert = document.getElementById('hero-validation-alert');
+const heroValidationOk = document.getElementById('hero-validation-ok');
+const heroValidationClose = document.getElementById('hero-validation-close');
 const roadmapSection = document.getElementById('roadmap');
 const roadmapTitle = document.getElementById('roadmap-title');
 const roadmapCards = document.getElementById('roadmap-cards');
@@ -50,12 +53,25 @@ function renderRoadmap(data) {
   roadmapSection.classList.remove('hidden');
 }
 
+function showHeroValidationAlert() {
+  heroValidationAlert.classList.remove('hidden');
+  document.body.classList.add('overflow-hidden');
+  heroValidationOk.focus();
+}
+
+function hideHeroValidationAlert() {
+  heroValidationAlert.classList.add('hidden');
+  document.body.classList.remove('overflow-hidden');
+}
+
 function handleGenerateRoadmap() {
-  const input = heroInput.value;
-  if (!input.trim()) {
-    heroInput.focus();
+  const input = heroInput.value.trim();
+  if (!input) {
+    showHeroValidationAlert();
     return;
   }
+
+  hideHeroValidationAlert();
 
   const originalText = generateBtn.textContent;
   generateBtn.textContent = 'Generating…';
@@ -214,6 +230,9 @@ function init() {
   }
 
   generateBtn.addEventListener('click', handleGenerateRoadmap);
+  heroValidationOk.addEventListener('click', hideHeroValidationAlert);
+  heroValidationClose.addEventListener('click', hideHeroValidationAlert);
+  heroInput.addEventListener('input', hideHeroValidationAlert);
   heroInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') handleGenerateRoadmap();
   });
