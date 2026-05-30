@@ -57,6 +57,15 @@
     box-shadow: 4px 4px 0px 0px #000000;
   }
 
+  #features .card-brutal {
+    @apply transition-all duration-150;
+  }
+
+  #features .card-brutal:hover {
+    @apply -translate-x-0.5 -translate-y-0.5;
+    box-shadow: 6px 6px 0px 0px #000000;
+  }
+
   .input-brutal {
     @apply w-full border-[3px] border-black bg-white px-4 py-3 font-medium outline-none transition-all;
     box-shadow: 3px 3px 0px 0px #000000;
@@ -106,6 +115,10 @@
   body.dark-mode .card-brutal {
     @apply border-white bg-[#1e293b];
     box-shadow: 4px 4px 0px 0px #ffffff;
+  }
+
+  body.dark-mode #features .card-brutal:hover {
+    box-shadow: 6px 6px 0px 0px #ffffff;
   }
 
   body.dark-mode .input-brutal {
