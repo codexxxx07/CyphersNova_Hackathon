@@ -1,4 +1,38 @@
-let tasks = loadFromStorage(STORAGE_KEYS.TASKS, []);
+function normalizeTask(task) {
+  const title = (task.title || task.text || '').trim();
+  const createdAt =
+    typeof task.createdAt === 'number'
+      ? task.createdAt
+      : typeof task.id === 'number'
+        ? task.id
+        : Date.now();
+  return {
+    id: task.id,
+    title,
+    createdAt,
+    completed: !!task.completed,
+  };
+}
+
+function getTaskTitle(task) {
+  return task.title || task.text || '';
+}
+
+function formatTaskDateTime(timestamp) {
+  return new Date(timestamp).toLocaleString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+}
+
+const rawTasks = loadFromStorage(STORAGE_KEYS.TASKS, []);
+let tasks = rawTasks.map(normalizeTask);
+if (rawTasks.some((t) => t.text && !t.title)) {
+  saveToStorage(STORAGE_KEYS.TASKS, tasks);
+}
 let savedRoadmaps = loadFromStorage(STORAGE_KEYS.SAVED_ROADMAPS, []);
 let pendingRoadmap = null;
 
@@ -268,45 +302,64 @@ function renderTasks() {
   emptyTasks.classList.toggle('hidden', tasks.length > 0);
 
   tasks.forEach((task) => {
-    const li = document.createElement('li');
-    li.className = 'card-brutal flex items-center gap-4';
-    li.dataset.id = task.id;
+    const card = document.createElement('article');
+    card.className =
+      'flex items-center justify-between gap-3 border-4 border-black bg-white p-4 transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 sm:gap-4 sm:p-5 shadow-brutal-lg';
+    card.dataset.id = task.id;
 
-    const labelClass = task.completed
-      ? 'flex-1 font-bold line-through text-gray-400'
-      : 'flex-1 font-bold';
+    const titleClass = task.completed
+      ? 'font-bold line-through text-gray-400'
+      : 'font-bold text-black';
 
-    li.innerHTML = `
-      <input
-        type="checkbox"
-        class="h-6 w-6 shrink-0 cursor-pointer accent-black border-[3px] border-black"
-        ${task.completed ? 'checked' : ''}
-        aria-label="Mark task complete"
-      />
-      <span class="${labelClass}">${escapeHtml(task.text)}</span>
-      <button class="btn-brutal-outline shrink-0 px-3 py-1 text-sm" aria-label="Delete task">✕</button>
+    card.innerHTML = `
+      <div class="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
+        <input
+          type="checkbox"
+          class="task-checkbox h-5 w-5 shrink-0 cursor-pointer border-4 border-black bg-white appearance-none checked:bg-accent-green"
+          style="box-shadow: 2px 2px 0 #000"
+          ${task.completed ? 'checked' : ''}
+          aria-label="Mark task complete"
+        />
+        <div class="min-w-0 flex-1">
+          <p class="task-title ${titleClass} break-words">${escapeHtml(getTaskTitle(task))}</p>
+          <p class="mt-1 text-xs font-medium text-gray-500">${escapeHtml(formatTaskDateTime(task.createdAt))}</p>
+        </div>
+      </div>
+      <div class="flex shrink-0 items-center gap-2">
+        <button
+          type="button"
+          class="task-edit-btn flex h-9 w-9 items-center justify-center border-[3px] border-black bg-white text-base transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5"
+          style="box-shadow: 3px 3px 0 #000"
+          aria-label="Edit task"
+        >✏️</button>
+        <button
+          type="button"
+          class="task-delete-btn flex h-9 w-9 items-center justify-center border-[3px] border-black bg-white text-base transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5"
+          style="box-shadow: 3px 3px 0 #000"
+          aria-label="Delete task"
+        >🗑️</button>
+      </div>
     `;
 
-    const checkbox = li.querySelector('input[type="checkbox"]');
-    const deleteBtn = li.querySelector('button');
+    card.querySelector('.task-checkbox').addEventListener('change', () => toggleTask(task.id));
+    card.querySelector('.task-edit-btn').addEventListener('click', () => editTask(task.id));
+    card.querySelector('.task-delete-btn').addEventListener('click', () => showTaskDeleteConfirmModal(task.id));
 
-    checkbox.addEventListener('change', () => toggleTask(task.id));
-    deleteBtn.addEventListener('click', () => deleteTask(task.id));
-
-    taskList.appendChild(li);
+    taskList.appendChild(card);
   });
 
   updateProgress();
 }
 
 function addTask() {
-  const text = taskInput.value.trim();
-  if (!text) {
+  const title = taskInput.value.trim();
+  if (!title) {
     taskInput.focus();
     return;
   }
 
-  tasks.push({ id: generateId(), text, completed: false });
+  const now = Date.now();
+  tasks.push({ id: now, title, createdAt: now, completed: false });
   saveToStorage(STORAGE_KEYS.TASKS, tasks);
   taskInput.value = '';
   renderTasks();
@@ -320,10 +373,65 @@ function toggleTask(id) {
   renderTasks();
 }
 
+function editTask(id) {
+  const task = tasks.find((t) => t.id === id);
+  if (!task) return;
+
+  const updated = window.prompt('Edit your task:', getTaskTitle(task));
+  if (updated === null) return;
+
+  const title = updated.trim();
+  if (!title) {
+    taskInput.focus();
+    return;
+  }
+
+  tasks = tasks.map((t) => (t.id === id ? { ...t, title } : t));
+  saveToStorage(STORAGE_KEYS.TASKS, tasks);
+  renderTasks();
+}
+
 function deleteTask(id) {
   tasks = tasks.filter((t) => t.id !== id);
   saveToStorage(STORAGE_KEYS.TASKS, tasks);
   renderTasks();
+}
+
+function showTaskDeleteConfirmModal(taskId) {
+  const overlay = document.createElement('div');
+  overlay.className =
+    'fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.setAttribute('aria-labelledby', 'task-delete-confirm-message');
+
+  overlay.innerHTML = `
+    <div
+      class="relative flex w-full max-w-md flex-col items-center gap-4 border-4 border-black bg-white p-8 text-center"
+      style="box-shadow: 6px 6px 0 #000"
+    >
+      <p id="task-delete-confirm-message" class="pt-2 text-base font-bold text-black md:text-lg">
+        ⚠️ Are you sure you want to delete this task?
+      </p>
+      <div class="flex flex-wrap justify-center gap-3">
+        <button type="button" class="task-delete-confirm-yes btn-brutal-outline border-[3px] border-black bg-white text-sm font-bold py-2 px-4 text-red-600"
+                style="box-shadow: 4px 4px 0 #000">Delete</button>
+        <button type="button" class="task-delete-confirm-cancel btn-brutal-primary text-sm py-2 px-4">Cancel</button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+  document.body.classList.add('overflow-hidden');
+
+  overlay.querySelector('.task-delete-confirm-yes').addEventListener('click', () => {
+    deleteTask(taskId);
+    closeDeleteConfirmModal(overlay);
+  });
+
+  overlay.querySelector('.task-delete-confirm-cancel').addEventListener('click', () => {
+    closeDeleteConfirmModal(overlay);
+  });
 }
 
 function updateProgress() {

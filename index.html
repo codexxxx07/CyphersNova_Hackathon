@@ -143,20 +143,20 @@
       <h2 class="section-title mb-2">Study Planner</h2>
       <p class="mb-8 font-medium text-gray-600">Add tasks and check them off as you go.</p>
 
-      <div class="flex flex-col gap-3 sm:flex-row">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-stretch">
         <input
           id="task-input"
           type="text"
           class="input-brutal flex-1"
-          placeholder="Add a study task..."
+          placeholder="What do you need to study?"
           autocomplete="off"
         />
         <button id="add-task-btn" class="btn-brutal-secondary whitespace-nowrap">Add Task</button>
       </div>
 
-      <ul id="task-list" class="mt-8 flex flex-col gap-3"></ul>
-      <p id="empty-tasks" class="mt-6 text-center font-medium text-gray-500">
-        No tasks yet. Add your first study task above!
+      <div id="task-list" class="mt-8 flex flex-col space-y-4"></div>
+      <p id="empty-tasks" class="mt-6 text-center font-bold text-gray-600">
+        No tasks yet. Start by adding one!
       </p>
     </div>
   </section>
