@@ -691,7 +691,25 @@ function init() {
     if (e.key === 'Enter') handleGenerateRoadmap();
   });
 
-  addTaskBtn.addEventListener('click', addTask);
+  addTaskBtn.addEventListener('click', () => {
+    if (!taskInput.value.trim()) {
+      const heroValidationMessage = document.getElementById('hero-validation-message');
+      const defaultHeroValidationMessage =
+        '⚠️ Please enter your study goal or situation first!';
+      heroValidationMessage.textContent = '⚠️ Please enter a task before adding.';
+      showHeroValidationAlert();
+      taskInput.focus();
+      const restoreHeroValidationMessage = () => {
+        heroValidationMessage.textContent = defaultHeroValidationMessage;
+      };
+      heroValidationOk.addEventListener('click', restoreHeroValidationMessage, { once: true });
+      heroValidationClose.addEventListener('click', restoreHeroValidationMessage, {
+        once: true,
+      });
+      return;
+    }
+    addTask();
+  });
   taskInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') addTask();
   });
