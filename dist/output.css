@@ -556,13 +556,7 @@ video {
 
 html {
   scroll-behavior: smooth;
-}
-
-body.dark-mode #chat-messages body.border-black {
-  --tw-border-opacity: 1;
-  border-color: rgb(255 255 255 / var(--tw-border-opacity, 1));
-  --tw-bg-opacity: 1;
-  background-color: rgb(15 23 42 / var(--tw-bg-opacity, 1));
+  overflow-x: clip;
 }
 
 body {
@@ -573,16 +567,10 @@ body {
   color: rgb(0 0 0 / var(--tw-text-opacity, 1));
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: clip;
 }
 
 body.dark-mode #progress .h-8.btn-brutal-primary {
-  --tw-border-opacity: 1;
-  border-color: rgb(255 255 255 / var(--tw-border-opacity, 1));
-  --tw-bg-opacity: 1;
-  background-color: rgb(15 23 42 / var(--tw-bg-opacity, 1));
-}
-
-body.dark-mode #chat-messages .btn-brutal-primary.bg-offwhite {
   --tw-border-opacity: 1;
   border-color: rgb(255 255 255 / var(--tw-border-opacity, 1));
   --tw-bg-opacity: 1;
@@ -652,13 +640,6 @@ body.dark-mode #progress .h-8.btn-brutal-secondary {
   background-color: rgb(15 23 42 / var(--tw-bg-opacity, 1));
 }
 
-body.dark-mode #chat-messages .btn-brutal-secondary.bg-offwhite {
-  --tw-border-opacity: 1;
-  border-color: rgb(255 255 255 / var(--tw-border-opacity, 1));
-  --tw-bg-opacity: 1;
-  background-color: rgb(15 23 42 / var(--tw-bg-opacity, 1));
-}
-
 .btn-brutal-secondary {
   display: inline-flex;
   align-items: center;
@@ -716,13 +697,6 @@ body.dark-mode .btn-brutal-secondary:hover {
 }
 
 body.dark-mode #progress .h-8.btn-brutal-outline {
-  --tw-border-opacity: 1;
-  border-color: rgb(255 255 255 / var(--tw-border-opacity, 1));
-  --tw-bg-opacity: 1;
-  background-color: rgb(15 23 42 / var(--tw-bg-opacity, 1));
-}
-
-body.dark-mode #chat-messages .btn-brutal-outline.bg-offwhite {
   --tw-border-opacity: 1;
   border-color: rgb(255 255 255 / var(--tw-border-opacity, 1));
   --tw-bg-opacity: 1;
@@ -792,14 +766,8 @@ body.dark-mode #progress .h-8.card-brutal {
   background-color: rgb(15 23 42 / var(--tw-bg-opacity, 1));
 }
 
-body.dark-mode #chat-messages .card-brutal.bg-offwhite {
-  --tw-border-opacity: 1;
-  border-color: rgb(255 255 255 / var(--tw-border-opacity, 1));
-  --tw-bg-opacity: 1;
-  background-color: rgb(15 23 42 / var(--tw-bg-opacity, 1));
-}
-
 .card-brutal {
+  min-width: 0px;
   border-width: 3px;
   --tw-border-opacity: 1;
   border-color: rgb(0 0 0 / var(--tw-border-opacity, 1));
@@ -810,13 +778,6 @@ body.dark-mode #chat-messages .card-brutal.bg-offwhite {
 }
 
 body.dark-mode #progress .h-8#progress .progress-pending-item {
-  --tw-border-opacity: 1;
-  border-color: rgb(255 255 255 / var(--tw-border-opacity, 1));
-  --tw-bg-opacity: 1;
-  background-color: rgb(15 23 42 / var(--tw-bg-opacity, 1));
-}
-
-body.dark-mode #chat-messages #progress .progress-pending-item.bg-offwhite {
   --tw-border-opacity: 1;
   border-color: rgb(255 255 255 / var(--tw-border-opacity, 1));
   --tw-bg-opacity: 1;
@@ -858,13 +819,6 @@ body.dark-mode #chat-messages #progress .progress-pending-item.bg-offwhite {
 }
 
 body.dark-mode #progress .h-8#progress .progress-status-badge {
-  --tw-border-opacity: 1;
-  border-color: rgb(255 255 255 / var(--tw-border-opacity, 1));
-  --tw-bg-opacity: 1;
-  background-color: rgb(15 23 42 / var(--tw-bg-opacity, 1));
-}
-
-body.dark-mode #chat-messages #progress .progress-status-badge.bg-offwhite {
   --tw-border-opacity: 1;
   border-color: rgb(255 255 255 / var(--tw-border-opacity, 1));
   --tw-bg-opacity: 1;
@@ -942,13 +896,6 @@ body.dark-mode #progress .h-8.input-brutal {
   background-color: rgb(15 23 42 / var(--tw-bg-opacity, 1));
 }
 
-body.dark-mode #chat-messages .input-brutal.bg-offwhite {
-  --tw-border-opacity: 1;
-  border-color: rgb(255 255 255 / var(--tw-border-opacity, 1));
-  --tw-bg-opacity: 1;
-  background-color: rgb(15 23 42 / var(--tw-bg-opacity, 1));
-}
-
 .input-brutal {
   width: 100%;
   border-width: 3px;
@@ -976,13 +923,6 @@ body.dark-mode #chat-messages .input-brutal.bg-offwhite {
 }
 
 body.dark-mode #progress .h-8.nav-link {
-  --tw-border-opacity: 1;
-  border-color: rgb(255 255 255 / var(--tw-border-opacity, 1));
-  --tw-bg-opacity: 1;
-  background-color: rgb(15 23 42 / var(--tw-bg-opacity, 1));
-}
-
-body.dark-mode #chat-messages .nav-link.bg-offwhite {
   --tw-border-opacity: 1;
   border-color: rgb(255 255 255 / var(--tw-border-opacity, 1));
   --tw-bg-opacity: 1;
@@ -1033,6 +973,7 @@ body.dark-mode #chat-messages .nav-link.bg-offwhite {
 }
 
 .section-title {
+  overflow-wrap: break-word;
   font-size: 1.875rem;
   line-height: 2.25rem;
   font-weight: 900;
@@ -1044,6 +985,53 @@ body.dark-mode #chat-messages .nav-link.bg-offwhite {
   .section-title {
     font-size: 2.25rem;
     line-height: 2.5rem;
+  }
+}
+
+#home .example-chip {
+  max-width: 100%;
+  overflow-wrap: break-word;
+  text-align: center;
+}
+
+#roadmap .card-brutal h3,
+  #roadmap .card-brutal p {
+  overflow-wrap: break-word;
+}
+
+#roadmap .card-brutal > div > div {
+  min-width: 0px;
+  flex: 1 1 0%;
+}
+
+#chat-messages > div {
+  min-width: 0px;
+  overflow-wrap: break-word;
+}
+
+#chat-messages .chat-bubble-user {
+  margin-left: 1rem;
+  max-width: calc(100% - 1rem);
+  align-self: flex-end;
+}
+
+@media (min-width: 640px) {
+  #chat-messages .chat-bubble-user {
+    margin-left: 2rem;
+    max-width: calc(100% - 2rem);
+  }
+}
+
+#chat-messages .chat-bubble-assistant {
+  margin-right: 1rem;
+  max-width: calc(100% - 1rem);
+  align-self: flex-start;
+}
+
+@media (min-width: 640px) {
+  #chat-messages .chat-bubble-assistant {
+    margin-right: 2rem;
+    max-width: calc(100% - 2rem);
   }
 }
 
@@ -1067,13 +1055,6 @@ body.dark-mode #chat-messages .nav-link.bg-offwhite {
 }
 
 body.dark-mode #progress .h-8#team .team-card {
-  --tw-border-opacity: 1;
-  border-color: rgb(255 255 255 / var(--tw-border-opacity, 1));
-  --tw-bg-opacity: 1;
-  background-color: rgb(15 23 42 / var(--tw-bg-opacity, 1));
-}
-
-body.dark-mode #chat-messages #team .team-card.bg-offwhite {
   --tw-border-opacity: 1;
   border-color: rgb(255 255 255 / var(--tw-border-opacity, 1));
   --tw-bg-opacity: 1;
@@ -1111,13 +1092,6 @@ body.dark-mode #chat-messages #team .team-card.bg-offwhite {
 }
 
 body.dark-mode #progress .h-8#team .team-avatar {
-  --tw-border-opacity: 1;
-  border-color: rgb(255 255 255 / var(--tw-border-opacity, 1));
-  --tw-bg-opacity: 1;
-  background-color: rgb(15 23 42 / var(--tw-bg-opacity, 1));
-}
-
-body.dark-mode #chat-messages #team .team-avatar.bg-offwhite {
   --tw-border-opacity: 1;
   border-color: rgb(255 255 255 / var(--tw-border-opacity, 1));
   --tw-bg-opacity: 1;
@@ -1192,13 +1166,6 @@ body.dark-mode #team .team-bio {
 }
 
 body.dark-mode #progress .h-8#team .team-social-link {
-  --tw-border-opacity: 1;
-  border-color: rgb(255 255 255 / var(--tw-border-opacity, 1));
-  --tw-bg-opacity: 1;
-  background-color: rgb(15 23 42 / var(--tw-bg-opacity, 1));
-}
-
-body.dark-mode #chat-messages #team .team-social-link.bg-offwhite {
   --tw-border-opacity: 1;
   border-color: rgb(255 255 255 / var(--tw-border-opacity, 1));
   --tw-bg-opacity: 1;
@@ -1362,7 +1329,7 @@ body.dark-mode #progress .h-8.border-black {
   background-color: rgb(15 23 42 / var(--tw-bg-opacity, 1));
 }
 
-body.dark-mode #chat-messages .border-black.bg-offwhite {
+body.dark-mode #chat-messages .chat-bubble-assistant {
   --tw-border-opacity: 1;
   border-color: rgb(255 255 255 / var(--tw-border-opacity, 1));
   --tw-bg-opacity: 1;
@@ -1496,18 +1463,6 @@ body.dark-mode #team .team-social-link:hover {
   margin-bottom: 2rem;
 }
 
-.ml-4 {
-  margin-left: 1rem;
-}
-
-.ml-8 {
-  margin-left: 2rem;
-}
-
-.mr-8 {
-  margin-right: 2rem;
-}
-
 .mt-1 {
   margin-top: 0.25rem;
 }
@@ -1628,6 +1583,10 @@ body.dark-mode #team .team-social-link:hover {
   max-width: 72rem;
 }
 
+.max-w-full {
+  max-width: 100%;
+}
+
 .max-w-md {
   max-width: 28rem;
 }
@@ -1682,6 +1641,10 @@ body.dark-mode #team .team-social-link:hover {
   align-items: center;
 }
 
+.justify-end {
+  justify-content: flex-end;
+}
+
 .justify-center {
   justify-content: center;
 }
@@ -1702,14 +1665,14 @@ body.dark-mode #team .team-social-link:hover {
   gap: 1rem;
 }
 
-.gap-6 {
-  gap: 1.5rem;
-}
-
 .space-y-4 > :not([hidden]) ~ :not([hidden]) {
   --tw-space-y-reverse: 0;
   margin-top: calc(1rem * calc(1 - var(--tw-space-y-reverse)));
   margin-bottom: calc(1rem * var(--tw-space-y-reverse));
+}
+
+.self-end {
+  align-self: flex-end;
 }
 
 .overflow-hidden {
@@ -1718,6 +1681,10 @@ body.dark-mode #team .team-social-link:hover {
 
 .overflow-y-auto {
   overflow-y: auto;
+}
+
+.overflow-x-hidden {
+  overflow-x: hidden;
 }
 
 .whitespace-nowrap {
@@ -2032,6 +1999,10 @@ body.dark-mode #team .team-social-link:hover {
 }
 
 @media (min-width: 640px) {
+  .sm\:w-auto {
+    width: auto;
+  }
+
   .sm\:grid-cols-2 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -2048,6 +2019,10 @@ body.dark-mode #team .team-social-link:hover {
     align-items: stretch;
   }
 
+  .sm\:justify-end {
+    justify-content: flex-end;
+  }
+
   .sm\:justify-between {
     justify-content: space-between;
   }
@@ -2060,12 +2035,20 @@ body.dark-mode #team .team-social-link:hover {
     gap: 1rem;
   }
 
+  .sm\:self-center {
+    align-self: center;
+  }
+
   .sm\:p-5 {
     padding: 1.25rem;
   }
 }
 
 @media (min-width: 768px) {
+  .md\:gap-6 {
+    gap: 1.5rem;
+  }
+
   .md\:px-6 {
     padding-left: 1.5rem;
     padding-right: 1.5rem;

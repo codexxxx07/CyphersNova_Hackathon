@@ -5,10 +5,12 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    overflow-x: clip;
   }
 
   body {
     @apply bg-offwhite text-black font-sans antialiased;
+    overflow-x: clip;
   }
 }
 
@@ -53,7 +55,7 @@
   }
 
   .card-brutal {
-    @apply border-[3px] border-black bg-white p-6;
+    @apply min-w-0 border-[3px] border-black bg-white p-6;
     box-shadow: 4px 4px 0px 0px #000000;
   }
 
@@ -119,7 +121,32 @@
   }
 
   .section-title {
-    @apply text-3xl md:text-4xl font-black uppercase tracking-tight;
+    @apply break-words text-3xl md:text-4xl font-black uppercase tracking-tight;
+  }
+
+  #home .example-chip {
+    @apply max-w-full break-words text-center;
+  }
+
+  #roadmap .card-brutal h3,
+  #roadmap .card-brutal p {
+    @apply break-words;
+  }
+
+  #roadmap .card-brutal > div > div {
+    @apply min-w-0 flex-1;
+  }
+
+  #chat-messages > div {
+    @apply min-w-0 break-words;
+  }
+
+  #chat-messages .chat-bubble-user {
+    @apply ml-4 max-w-[calc(100%-1rem)] self-end sm:ml-8 sm:max-w-[calc(100%-2rem)];
+  }
+
+  #chat-messages .chat-bubble-assistant {
+    @apply mr-4 max-w-[calc(100%-1rem)] self-start sm:mr-8 sm:max-w-[calc(100%-2rem)];
   }
 
   #team .team-grid {
@@ -251,7 +278,7 @@
     @apply border-white bg-[#0f172a];
   }
 
-  body.dark-mode #chat-messages .border-black.bg-offwhite {
+  body.dark-mode #chat-messages .chat-bubble-assistant {
     @apply border-white bg-[#0f172a];
   }
 

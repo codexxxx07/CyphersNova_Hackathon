@@ -179,12 +179,12 @@ function renderRoadmap(data, { fromSaved = false } = {}) {
     card.className = 'card-brutal animate-fade-slide';
     card.style.animationDelay = `${index * 0.08}s`;
     card.innerHTML = `
-      <div class="flex items-start gap-4">
+      <div class="flex min-w-0 items-start gap-3 sm:gap-4">
         <span class="flex h-10 w-10 shrink-0 items-center justify-center border-[3px] border-black bg-accent-blue text-lg font-black text-white"
               style="box-shadow: 2px 2px 0 #000">${index + 1}</span>
-        <div>
-          <h3 class="text-lg font-black uppercase">${escapeHtml(step.title)}</h3>
-          <p class="mt-2 font-medium text-gray-700">${escapeHtml(step.description)}</p>
+        <div class="min-w-0 flex-1">
+          <h3 class="break-words text-lg font-black uppercase">${escapeHtml(step.title)}</h3>
+          <p class="mt-2 break-words font-medium text-gray-700">${escapeHtml(step.description)}</p>
         </div>
       </div>
     `;
@@ -218,12 +218,12 @@ function renderSavedRoadmaps() {
     card.dataset.id = roadmap.id;
 
     const goalLine = roadmap.goalInput
-      ? `<p class="mt-1 text-sm font-medium text-gray-600">Goal: ${escapeHtml(roadmap.goalInput)}</p>`
+      ? `<p class="mt-1 break-words text-sm font-medium text-gray-600">Goal: ${escapeHtml(roadmap.goalInput)}</p>`
       : '';
 
     card.innerHTML = `
       <div class="min-w-0 flex-1">
-        <h3 class="text-lg font-black uppercase">${escapeHtml(roadmap.title)}</h3>
+        <h3 class="break-words text-lg font-black uppercase">${escapeHtml(roadmap.title)}</h3>
         ${goalLine}
         <p class="mt-2 text-sm font-bold text-gray-500">
           ${roadmap.steps.length} steps · Saved ${formatSavedDate(roadmap.savedAt)}
@@ -447,7 +447,7 @@ function renderTasks() {
   tasks.forEach((task) => {
     const card = document.createElement('article');
     card.className =
-      'flex items-center justify-between gap-3 border-4 border-black bg-white p-4 transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 sm:gap-4 sm:p-5 shadow-brutal-lg';
+      'flex flex-col gap-3 border-4 border-black bg-white p-4 transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:p-5 shadow-brutal-lg';
     card.dataset.id = task.id;
 
     const isEditing = editingTaskId === task.id;
@@ -465,7 +465,7 @@ function renderTasks() {
           />
           <p class="text-xs font-medium text-gray-500">${escapeHtml(formatTaskDateTime(task.createdAt))}</p>
         </div>
-        <div class="flex shrink-0 items-center gap-2">
+        <div class="flex shrink-0 items-center justify-end gap-2 self-end sm:self-center">
           <button
             type="button"
             class="task-save-btn flex h-9 w-9 items-center justify-center border-[3px] border-black bg-accent-green text-base transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5"
@@ -512,7 +512,7 @@ function renderTasks() {
             <p class="mt-1 text-xs font-medium text-gray-500">${escapeHtml(formatTaskDateTime(task.createdAt))}</p>
           </div>
         </div>
-        <div class="flex shrink-0 items-center gap-2">
+        <div class="flex shrink-0 items-center justify-end gap-2 self-end sm:self-center">
           <button
             type="button"
             class="task-edit-btn flex h-9 w-9 items-center justify-center border-[3px] border-black bg-white text-base transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5"
@@ -691,13 +691,13 @@ function chatbotReply(input) {
 function appendChatMessage(text, isUser) {
   const bubble = document.createElement('div');
   bubble.className = isUser
-    ? 'border-[3px] border-black bg-accent-blue p-4 text-white ml-8'
-    : 'border-[3px] border-black bg-offwhite p-4 mr-8';
+    ? 'chat-bubble-user border-[3px] border-black bg-accent-blue p-4 text-white'
+    : 'chat-bubble-assistant border-[3px] border-black bg-offwhite p-4';
 
   const label = isUser ? 'You' : 'Study Buddy';
   bubble.innerHTML = `
     <p class="text-xs font-bold uppercase mb-1 ${isUser ? 'text-blue-200' : 'text-gray-500'}">${label}</p>
-    <p>${escapeHtml(text)}</p>
+    <p class="break-words">${escapeHtml(text)}</p>
   `;
 
   chatMessages.appendChild(bubble);
