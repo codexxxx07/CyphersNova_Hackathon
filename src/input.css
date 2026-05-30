@@ -57,6 +57,33 @@
     box-shadow: 4px 4px 0px 0px #000000;
   }
 
+  #progress .progress-pending-item {
+    @apply flex flex-col gap-3 border-[3px] border-black bg-white p-4 transition-all duration-200 ease-out sm:flex-row sm:items-center sm:justify-between;
+    box-shadow: 3px 3px 0px 0px #000000;
+  }
+
+  #progress .progress-pending-item:hover {
+    @apply -translate-y-0.5;
+    box-shadow: 5px 5px 0px 0px #000000;
+  }
+
+  #progress .progress-status-badge {
+    @apply inline-flex shrink-0 items-center justify-center self-start border-[3px] border-black px-3 py-1 text-xs font-bold uppercase tracking-wide sm:self-center;
+    box-shadow: 2px 2px 0px 0px #000000;
+  }
+
+  #progress .progress-status-pending {
+    @apply bg-yellow-300 text-black;
+  }
+
+  #progress .progress-status-in-progress {
+    @apply bg-accent-blue text-white;
+  }
+
+  #progress .progress-status-not-started {
+    @apply bg-gray-200 text-black;
+  }
+
   #features .card-brutal {
     @apply transition-all duration-150;
   }

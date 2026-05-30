@@ -6,12 +6,36 @@ function normalizeTask(task) {
       : typeof task.id === 'number'
         ? task.id
         : Date.now();
+  const status = task.status || (task.completed ? 'completed' : 'pending');
   return {
     id: task.id,
     title,
     createdAt,
     completed: !!task.completed,
+    status,
   };
+}
+
+const TASK_STATUS_LABELS = {
+  pending: 'Pending',
+  'in-progress': 'In Progress',
+  'not-started': 'Not Started',
+};
+
+function getTaskStatusLabel(task) {
+  if (task.completed) return null;
+  return TASK_STATUS_LABELS[task.status] || 'Pending';
+}
+
+function getTaskStatusBadgeClass(status) {
+  switch (status) {
+    case 'in-progress':
+      return 'progress-status-in-progress';
+    case 'not-started':
+      return 'progress-status-not-started';
+    default:
+      return 'progress-status-pending';
+  }
 }
 
 function getTaskTitle(task) {
@@ -58,6 +82,8 @@ const statTotal = document.getElementById('stat-total');
 const statCompleted = document.getElementById('stat-completed');
 const progressBar = document.getElementById('progress-bar');
 const progressPercent = document.getElementById('progress-percent');
+const pendingTasksList = document.getElementById('pending-tasks-list');
+const pendingTasksEmpty = document.getElementById('pending-tasks-empty');
 const chatMessages = document.getElementById('chat-messages');
 const chatInput = document.getElementById('chat-input');
 const chatSendBtn = document.getElementById('chat-send-btn');
@@ -529,22 +555,29 @@ function addTask() {
   }
 
   const now = Date.now();
-  tasks.push({ id: now, title, createdAt: now, completed: false });
+  tasks.push({ id: now, title, createdAt: now, completed: false, status: 'not-started' });
   saveToStorage(STORAGE_KEYS.TASKS, tasks);
   taskInput.value = '';
   renderTasks();
 }
 
 function toggleTask(id) {
-  tasks = tasks.map((t) =>
-    t.id === id ? { ...t, completed: !t.completed } : t
-  );
+  tasks = tasks.map((t) => {
+    if (t.id !== id) return t;
+    const completed = !t.completed;
+    const status = completed ? 'completed' : 'pending';
+    return { ...t, completed, status };
+  });
   saveToStorage(STORAGE_KEYS.TASKS, tasks);
   renderTasks();
 }
 
 function startTaskEdit(id) {
   if (!tasks.some((t) => t.id === id)) return;
+  tasks = tasks.map((t) =>
+    t.id === id && !t.completed ? { ...t, status: 'in-progress' } : t
+  );
+  saveToStorage(STORAGE_KEYS.TASKS, tasks);
   editingTaskId = id;
   renderTasks();
 }
@@ -611,6 +644,34 @@ function showTaskDeleteConfirmModal(taskId) {
   });
 }
 
+function renderPendingTasks() {
+  if (!pendingTasksList || !pendingTasksEmpty) return;
+
+  const pending = tasks.filter((t) => !t.completed);
+  pendingTasksList.innerHTML = '';
+
+  if (pending.length === 0) {
+    pendingTasksEmpty.classList.remove('hidden');
+    return;
+  }
+
+  pendingTasksEmpty.classList.add('hidden');
+
+  pending.forEach((task) => {
+    const row = document.createElement('div');
+    row.className = 'progress-pending-item';
+    const badgeClass = getTaskStatusBadgeClass(task.status);
+    const statusLabel = getTaskStatusLabel(task);
+
+    row.innerHTML = `
+      <p class="min-w-0 flex-1 break-words font-bold text-black">${escapeHtml(getTaskTitle(task))}</p>
+      <span class="progress-status-badge ${badgeClass}">${escapeHtml(statusLabel)}</span>
+    `;
+
+    pendingTasksList.appendChild(row);
+  });
+}
+
 function updateProgress() {
   const total = tasks.length;
   const completed = tasks.filter((t) => t.completed).length;
@@ -620,6 +681,7 @@ function updateProgress() {
   statCompleted.textContent = completed;
   progressBar.style.width = `${percent}%`;
   progressPercent.textContent = `${percent}%`;
+  renderPendingTasks();
 }
 
 function chatbotReply(input) {
