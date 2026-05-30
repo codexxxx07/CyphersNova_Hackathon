@@ -33,6 +33,7 @@ let tasks = rawTasks.map(normalizeTask);
 if (rawTasks.some((t) => t.text && !t.title)) {
   saveToStorage(STORAGE_KEYS.TASKS, tasks);
 }
+let editingTaskId = null;
 let savedRoadmaps = loadFromStorage(STORAGE_KEYS.SAVED_ROADMAPS, []);
 let pendingRoadmap = null;
 
@@ -307,46 +308,99 @@ function renderTasks() {
       'flex items-center justify-between gap-3 border-4 border-black bg-white p-4 transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 sm:gap-4 sm:p-5 shadow-brutal-lg';
     card.dataset.id = task.id;
 
-    const titleClass = task.completed
-      ? 'font-bold line-through text-gray-400'
-      : 'font-bold text-black';
+    const isEditing = editingTaskId === task.id;
 
-    card.innerHTML = `
-      <div class="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
-        <input
-          type="checkbox"
-          class="task-checkbox h-5 w-5 shrink-0 cursor-pointer border-4 border-black bg-white appearance-none checked:bg-accent-green"
-          style="box-shadow: 2px 2px 0 #000"
-          ${task.completed ? 'checked' : ''}
-          aria-label="Mark task complete"
-        />
-        <div class="min-w-0 flex-1">
-          <p class="task-title ${titleClass} break-words">${escapeHtml(getTaskTitle(task))}</p>
-          <p class="mt-1 text-xs font-medium text-gray-500">${escapeHtml(formatTaskDateTime(task.createdAt))}</p>
+    if (isEditing) {
+      card.innerHTML = `
+        <div class="flex min-w-0 flex-1 flex-col gap-2 sm:gap-3">
+          <input
+            type="text"
+            class="task-edit-input w-full border-4 border-black bg-white px-3 py-2 font-bold text-black outline-none"
+            style="box-shadow: 4px 4px 0 #000"
+            value="${escapeHtml(getTaskTitle(task))}"
+            aria-label="Edit task title"
+            autocomplete="off"
+          />
+          <p class="text-xs font-medium text-gray-500">${escapeHtml(formatTaskDateTime(task.createdAt))}</p>
         </div>
-      </div>
-      <div class="flex shrink-0 items-center gap-2">
-        <button
-          type="button"
-          class="task-edit-btn flex h-9 w-9 items-center justify-center border-[3px] border-black bg-white text-base transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5"
-          style="box-shadow: 3px 3px 0 #000"
-          aria-label="Edit task"
-        >✏️</button>
-        <button
-          type="button"
-          class="task-delete-btn flex h-9 w-9 items-center justify-center border-[3px] border-black bg-white text-base transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5"
-          style="box-shadow: 3px 3px 0 #000"
-          aria-label="Delete task"
-        >🗑️</button>
-      </div>
-    `;
+        <div class="flex shrink-0 items-center gap-2">
+          <button
+            type="button"
+            class="task-save-btn flex h-9 w-9 items-center justify-center border-[3px] border-black bg-accent-green text-base transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5"
+            style="box-shadow: 3px 3px 0 #000"
+            aria-label="Save task"
+          >✅</button>
+          <button
+            type="button"
+            class="task-cancel-btn flex h-9 w-9 items-center justify-center border-[3px] border-black bg-white text-base transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5"
+            style="box-shadow: 3px 3px 0 #000"
+            aria-label="Cancel edit"
+          >❌</button>
+        </div>
+      `;
 
-    card.querySelector('.task-checkbox').addEventListener('change', () => toggleTask(task.id));
-    card.querySelector('.task-edit-btn').addEventListener('click', () => editTask(task.id));
-    card.querySelector('.task-delete-btn').addEventListener('click', () => showTaskDeleteConfirmModal(task.id));
+      const editInput = card.querySelector('.task-edit-input');
+      card.querySelector('.task-save-btn').addEventListener('click', () => saveTaskEdit(task.id, editInput.value));
+      card.querySelector('.task-cancel-btn').addEventListener('click', () => cancelTaskEdit());
+      editInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          saveTaskEdit(task.id, editInput.value);
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          cancelTaskEdit();
+        }
+      });
+    } else {
+      const titleClass = task.completed
+        ? 'font-bold line-through text-gray-400'
+        : 'font-bold text-black';
+
+      card.innerHTML = `
+        <div class="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
+          <input
+            type="checkbox"
+            class="task-checkbox h-5 w-5 shrink-0 cursor-pointer border-4 border-black bg-white appearance-none checked:bg-accent-green"
+            style="box-shadow: 2px 2px 0 #000"
+            ${task.completed ? 'checked' : ''}
+            aria-label="Mark task complete"
+          />
+          <div class="min-w-0 flex-1">
+            <p class="task-title ${titleClass} break-words">${escapeHtml(getTaskTitle(task))}</p>
+            <p class="mt-1 text-xs font-medium text-gray-500">${escapeHtml(formatTaskDateTime(task.createdAt))}</p>
+          </div>
+        </div>
+        <div class="flex shrink-0 items-center gap-2">
+          <button
+            type="button"
+            class="task-edit-btn flex h-9 w-9 items-center justify-center border-[3px] border-black bg-white text-base transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5"
+            style="box-shadow: 3px 3px 0 #000"
+            aria-label="Edit task"
+          >✏️</button>
+          <button
+            type="button"
+            class="task-delete-btn flex h-9 w-9 items-center justify-center border-[3px] border-black bg-white text-base transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5"
+            style="box-shadow: 3px 3px 0 #000"
+            aria-label="Delete task"
+          >🗑️</button>
+        </div>
+      `;
+
+      card.querySelector('.task-checkbox').addEventListener('change', () => toggleTask(task.id));
+      card.querySelector('.task-edit-btn').addEventListener('click', () => startTaskEdit(task.id));
+      card.querySelector('.task-delete-btn').addEventListener('click', () => showTaskDeleteConfirmModal(task.id));
+    }
 
     taskList.appendChild(card);
   });
+
+  if (editingTaskId !== null) {
+    const editInput = taskList.querySelector(`[data-id="${editingTaskId}"] .task-edit-input`);
+    if (editInput) {
+      editInput.focus();
+      editInput.select();
+    }
+  }
 
   updateProgress();
 }
@@ -373,21 +427,28 @@ function toggleTask(id) {
   renderTasks();
 }
 
-function editTask(id) {
-  const task = tasks.find((t) => t.id === id);
-  if (!task) return;
+function startTaskEdit(id) {
+  if (!tasks.some((t) => t.id === id)) return;
+  editingTaskId = id;
+  renderTasks();
+}
 
-  const updated = window.prompt('Edit your task:', getTaskTitle(task));
-  if (updated === null) return;
-
-  const title = updated.trim();
+function saveTaskEdit(id, rawTitle) {
+  const title = rawTitle.trim();
   if (!title) {
-    taskInput.focus();
+    const editInput = taskList.querySelector(`[data-id="${id}"] .task-edit-input`);
+    editInput?.focus();
     return;
   }
 
   tasks = tasks.map((t) => (t.id === id ? { ...t, title } : t));
   saveToStorage(STORAGE_KEYS.TASKS, tasks);
+  editingTaskId = null;
+  renderTasks();
+}
+
+function cancelTaskEdit() {
+  editingTaskId = null;
   renderTasks();
 }
 
