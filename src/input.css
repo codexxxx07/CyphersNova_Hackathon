@@ -95,6 +95,61 @@
     @apply text-3xl md:text-4xl font-black uppercase tracking-tight;
   }
 
+  #team .team-grid {
+    @apply mx-auto grid w-full max-w-4xl grid-cols-1 items-stretch gap-8 pt-12 md:grid-cols-2 md:gap-10;
+  }
+
+  #team .team-card {
+    @apply relative flex h-full min-h-[22rem] w-full flex-col border-[3px] border-black bg-white px-6 pb-6 pt-16 text-center transition-all duration-200 ease-out;
+    box-shadow: 4px 4px 0px 0px #000000;
+  }
+
+  #team .team-card:hover {
+    @apply -translate-y-1;
+    box-shadow: 6px 6px 0px 0px #000000;
+  }
+
+  #team .team-avatar {
+    @apply absolute left-1/2 top-0 h-24 w-24 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-black bg-white object-cover;
+    box-shadow:
+      0 0 0 3px rgba(37, 99, 235, 0.35),
+      4px 4px 0px 0px #000000;
+  }
+
+  #team .team-name {
+    @apply text-xl font-black uppercase tracking-tight;
+  }
+
+  #team .team-role {
+    @apply mt-1 text-sm font-bold uppercase tracking-wide text-accent-blue;
+  }
+
+  #team .team-bio {
+    @apply mt-4 flex-grow text-sm font-medium leading-relaxed text-gray-600;
+  }
+
+  #team .team-socials {
+    @apply mt-auto flex flex-wrap items-center justify-center gap-3 pt-6;
+  }
+
+  #team .team-social-link {
+    @apply inline-flex h-10 w-10 cursor-pointer items-center justify-center border-[3px] border-black bg-white text-black transition-all duration-150 ease-out;
+    box-shadow: 3px 3px 0px 0px #000000;
+  }
+
+  #team .team-social-link:hover {
+    @apply -translate-y-0.5 bg-white text-black;
+    box-shadow: 4px 4px 0px 0px #000000;
+  }
+
+  #team .team-social-link:focus-visible {
+    @apply outline-none ring-2 ring-accent-blue ring-offset-2;
+  }
+
+  #team .team-social-icon {
+    @apply h-5 w-5;
+  }
+
   /* Dark mode */
   body.dark-mode {
     @apply bg-[#0f172a] text-white;
@@ -175,6 +230,36 @@
 
   body.dark-mode #chat-messages .text-gray-500 {
     @apply text-gray-400;
+  }
+
+  body.dark-mode #team {
+    @apply bg-[#0f172a];
+  }
+
+  body.dark-mode #team .team-card {
+    @apply border-white bg-[#1e293b];
+    box-shadow: 4px 4px 0px 0px #ffffff;
+  }
+
+  body.dark-mode #team .team-card:hover {
+    box-shadow: 6px 6px 0px 0px #ffffff;
+  }
+
+  body.dark-mode #team .team-avatar {
+    @apply border-white bg-[#1e293b];
+    box-shadow:
+      0 0 0 3px rgba(37, 99, 235, 0.45),
+      4px 4px 0px 0px #ffffff;
+  }
+
+  body.dark-mode #team .team-social-link {
+    @apply border-white bg-[#1e293b] text-white;
+    box-shadow: 3px 3px 0px 0px #ffffff;
+  }
+
+  body.dark-mode #team .team-social-link:hover {
+    @apply bg-[#1e293b] text-white;
+    box-shadow: 4px 4px 0px 0px #ffffff;
   }
 }
 
