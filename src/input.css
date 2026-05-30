@@ -68,7 +68,18 @@
   }
 
   .nav-link {
-    @apply font-bold border-b-[3px] border-transparent hover:border-black transition-colors;
+    @apply inline-flex items-center justify-center px-4 py-2 text-sm font-bold border-[3px] border-black bg-accent-blue text-white cursor-pointer transition-all duration-150;
+    box-shadow: 4px 4px 0px 0px #000000;
+  }
+
+  .nav-link:hover {
+    @apply translate-x-[2px] translate-y-[2px] bg-black text-white;
+    box-shadow: 2px 2px 0px 0px #000000;
+  }
+
+  .nav-link:active {
+    @apply translate-x-[4px] translate-y-[4px];
+    box-shadow: none;
   }
 
   .section-title {
