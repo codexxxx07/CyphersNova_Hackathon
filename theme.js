@@ -1,17 +1,7 @@
-const THEME_STORAGE_KEY = 'studyBuddy_theme';
-
-function saveTheme(theme) {
-  localStorage.setItem(THEME_STORAGE_KEY, theme);
-}
-
 function loadTheme() {
+  document.body.classList.remove('dark-mode');
   try {
-    const saved = localStorage.getItem(THEME_STORAGE_KEY);
-    if (saved === 'dark') {
-      document.body.classList.add('dark-mode');
-    } else {
-      document.body.classList.remove('dark-mode');
-    }
+    localStorage.removeItem('studyBuddy_theme');
   } catch {
     /* ignore storage errors */
   }
@@ -20,8 +10,6 @@ function loadTheme() {
 
 function toggleTheme() {
   document.body.classList.toggle('dark-mode');
-  const isDark = document.body.classList.contains('dark-mode');
-  saveTheme(isDark ? 'dark' : 'light');
   updateThemeToggleIcon();
 }
 
