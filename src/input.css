@@ -85,6 +85,84 @@
   .section-title {
     @apply text-3xl md:text-4xl font-black uppercase tracking-tight;
   }
+
+  /* Dark mode */
+  body.dark-mode {
+    @apply bg-[#0f172a] text-white;
+  }
+
+  body.dark-mode nav {
+    @apply border-white bg-[#0f172a];
+  }
+
+  body.dark-mode section {
+    @apply border-white;
+  }
+
+  body.dark-mode #planner {
+    @apply bg-[#1e293b];
+  }
+
+  body.dark-mode .card-brutal {
+    @apply border-white bg-[#1e293b];
+    box-shadow: 4px 4px 0px 0px #ffffff;
+  }
+
+  body.dark-mode .input-brutal {
+    @apply border-white bg-[#1e293b] text-white;
+    box-shadow: 3px 3px 0px 0px #ffffff;
+  }
+
+  body.dark-mode .input-brutal:focus {
+    box-shadow: 3px 3px 0px 0px #2563eb;
+  }
+
+  body.dark-mode .input-brutal::placeholder {
+    @apply text-gray-400;
+  }
+
+  body.dark-mode .btn-brutal,
+  body.dark-mode .nav-link {
+    @apply border-white;
+    box-shadow: 4px 4px 0px 0px #ffffff;
+  }
+
+  body.dark-mode .btn-brutal:hover,
+  body.dark-mode .nav-link:hover {
+    box-shadow: 2px 2px 0px 0px #ffffff;
+  }
+
+  body.dark-mode .btn-brutal-outline {
+    @apply bg-[#1e293b] text-white;
+  }
+
+  body.dark-mode .btn-brutal-outline:hover {
+    @apply bg-white text-black;
+  }
+
+  body.dark-mode .text-gray-700 {
+    @apply text-gray-300;
+  }
+
+  body.dark-mode .text-gray-600 {
+    @apply text-gray-400;
+  }
+
+  body.dark-mode .text-gray-500 {
+    @apply text-gray-400;
+  }
+
+  body.dark-mode #progress .h-8.border-black {
+    @apply border-white bg-[#0f172a];
+  }
+
+  body.dark-mode #chat-messages .border-black.bg-offwhite {
+    @apply border-white bg-[#0f172a];
+  }
+
+  body.dark-mode #chat-messages .text-gray-500 {
+    @apply text-gray-400;
+  }
 }
 
 @layer utilities {
