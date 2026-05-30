@@ -319,12 +319,14 @@ function migrateLegacyRoadmap() {
 
 function showHeroValidationAlert() {
   heroValidationAlert.classList.remove('hidden');
+  heroValidationAlert.classList.add('flex');
   document.body.classList.add('overflow-hidden');
   heroValidationOk.focus();
 }
 
 function hideHeroValidationAlert() {
   heroValidationAlert.classList.add('hidden');
+  heroValidationAlert.classList.remove('flex');
   document.body.classList.remove('overflow-hidden');
 }
 
