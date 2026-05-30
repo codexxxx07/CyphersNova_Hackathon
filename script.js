@@ -1,5 +1,6 @@
 let tasks = loadFromStorage(STORAGE_KEYS.TASKS, []);
-let currentRoadmap = loadFromStorage(STORAGE_KEYS.ROADMAP, null);
+let savedRoadmaps = loadFromStorage(STORAGE_KEYS.SAVED_ROADMAPS, []);
+let pendingRoadmap = null;
 
 const heroInput = document.getElementById('hero-input');
 const generateBtn = document.getElementById('generate-btn');
@@ -9,6 +10,11 @@ const heroValidationClose = document.getElementById('hero-validation-close');
 const roadmapSection = document.getElementById('roadmap');
 const roadmapTitle = document.getElementById('roadmap-title');
 const roadmapCards = document.getElementById('roadmap-cards');
+const roadmapActions = document.getElementById('roadmap-actions');
+const saveRoadmapBtn = document.getElementById('save-roadmap-btn');
+const roadmapSavedMsg = document.getElementById('roadmap-saved-msg');
+const savedRoadmapsList = document.getElementById('saved-roadmaps-list');
+const emptySaved = document.getElementById('empty-saved');
 const taskInput = document.getElementById('task-input');
 const addTaskBtn = document.getElementById('add-task-btn');
 const taskList = document.getElementById('task-list');
@@ -27,7 +33,18 @@ function generateRoadmap(input) {
   return findRoadmap(trimmed);
 }
 
-function renderRoadmap(data) {
+function isRoadmapSaved(id) {
+  return savedRoadmaps.some((r) => r.id === id);
+}
+
+function updateRoadmapSaveUI(roadmapId) {
+  const saved = isRoadmapSaved(roadmapId);
+  roadmapActions.classList.remove('hidden');
+  saveRoadmapBtn.classList.toggle('hidden', saved);
+  roadmapSavedMsg.classList.toggle('hidden', !saved);
+}
+
+function renderRoadmap(data, { fromSaved = false } = {}) {
   if (!data) return;
 
   roadmapTitle.textContent = data.title;
@@ -50,7 +67,114 @@ function renderRoadmap(data) {
     roadmapCards.appendChild(card);
   });
 
+  if (fromSaved) {
+    roadmapActions.classList.add('hidden');
+  } else {
+    updateRoadmapSaveUI(data.id);
+  }
+
   roadmapSection.classList.remove('hidden');
+}
+
+function formatSavedDate(timestamp) {
+  return new Date(timestamp).toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+}
+
+function renderSavedRoadmaps() {
+  savedRoadmapsList.innerHTML = '';
+  emptySaved.classList.toggle('hidden', savedRoadmaps.length > 0);
+
+  savedRoadmaps.forEach((roadmap) => {
+    const card = document.createElement('article');
+    card.className = 'card-brutal flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between';
+    card.dataset.id = roadmap.id;
+
+    const goalLine = roadmap.goalInput
+      ? `<p class="mt-1 text-sm font-medium text-gray-600">Goal: ${escapeHtml(roadmap.goalInput)}</p>`
+      : '';
+
+    card.innerHTML = `
+      <div class="min-w-0 flex-1">
+        <h3 class="text-lg font-black uppercase">${escapeHtml(roadmap.title)}</h3>
+        ${goalLine}
+        <p class="mt-2 text-sm font-bold text-gray-500">
+          ${roadmap.steps.length} steps · Saved ${formatSavedDate(roadmap.savedAt)}
+        </p>
+      </div>
+      <div class="flex shrink-0 flex-wrap gap-3">
+        <button type="button" class="btn-brutal-primary view-saved-btn text-sm py-2 px-4">View</button>
+        <button type="button" class="btn-brutal-outline delete-saved-btn border-[3px] border-black bg-white text-sm font-bold py-2 px-4"
+                style="box-shadow: 4px 4px 0 #000">Delete</button>
+      </div>
+    `;
+
+    card.querySelector('.view-saved-btn').addEventListener('click', () => {
+      pendingRoadmap = roadmap;
+      renderRoadmap(roadmap, { fromSaved: true });
+      roadmapSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    card.querySelector('.delete-saved-btn').addEventListener('click', () => {
+      deleteSavedRoadmap(roadmap.id);
+    });
+
+    savedRoadmapsList.appendChild(card);
+  });
+}
+
+function savePendingRoadmap() {
+  if (!pendingRoadmap || isRoadmapSaved(pendingRoadmap.id)) return;
+
+  const entry = {
+    id: pendingRoadmap.id,
+    title: pendingRoadmap.title,
+    steps: pendingRoadmap.steps,
+    goalInput: pendingRoadmap.goalInput || '',
+    savedAt: Date.now(),
+  };
+
+  savedRoadmaps.unshift(entry);
+  saveToStorage(STORAGE_KEYS.SAVED_ROADMAPS, savedRoadmaps);
+  updateRoadmapSaveUI(pendingRoadmap.id);
+  renderSavedRoadmaps();
+}
+
+function deleteSavedRoadmap(id) {
+  savedRoadmaps = savedRoadmaps.filter((r) => r.id !== id);
+  saveToStorage(STORAGE_KEYS.SAVED_ROADMAPS, savedRoadmaps);
+
+  const card = savedRoadmapsList.querySelector(`[data-id="${id}"]`);
+  if (card) card.remove();
+
+  emptySaved.classList.toggle('hidden', savedRoadmaps.length > 0);
+
+  if (pendingRoadmap && pendingRoadmap.id === id) {
+    updateRoadmapSaveUI(id);
+  }
+}
+
+function migrateLegacyRoadmap() {
+  const legacy = loadFromStorage(STORAGE_KEYS.ROADMAP, null);
+  if (!legacy) return;
+
+  const alreadyMigrated = savedRoadmaps.some(
+    (r) => r.title === legacy.title && r.steps.length === legacy.steps.length
+  );
+  if (!alreadyMigrated) {
+    savedRoadmaps.unshift({
+      id: Date.now(),
+      title: legacy.title,
+      steps: legacy.steps,
+      goalInput: '',
+      savedAt: Date.now(),
+    });
+    saveToStorage(STORAGE_KEYS.SAVED_ROADMAPS, savedRoadmaps);
+  }
+  localStorage.removeItem(STORAGE_KEYS.ROADMAP);
 }
 
 function showHeroValidationAlert() {
@@ -81,9 +205,13 @@ function handleGenerateRoadmap() {
   setTimeout(() => {
     const roadmap = generateRoadmap(input);
     if (roadmap) {
-      currentRoadmap = roadmap;
-      saveToStorage(STORAGE_KEYS.ROADMAP, roadmap);
-      renderRoadmap(roadmap);
+      pendingRoadmap = {
+        id: Date.now(),
+        title: roadmap.title,
+        steps: roadmap.steps,
+        goalInput: input,
+      };
+      renderRoadmap(pendingRoadmap);
       roadmapSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
@@ -223,13 +351,12 @@ function initNavScroll() {
 }
 
 function init() {
+  migrateLegacyRoadmap();
   renderTasks();
-
-  if (currentRoadmap) {
-    renderRoadmap(currentRoadmap);
-  }
+  renderSavedRoadmaps();
 
   generateBtn.addEventListener('click', handleGenerateRoadmap);
+  saveRoadmapBtn.addEventListener('click', savePendingRoadmap);
   heroValidationOk.addEventListener('click', hideHeroValidationAlert);
   heroValidationClose.addEventListener('click', hideHeroValidationAlert);
   heroInput.addEventListener('input', hideHeroValidationAlert);

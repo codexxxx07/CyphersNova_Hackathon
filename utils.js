@@ -1,6 +1,7 @@
 const STORAGE_KEYS = {
   TASKS: 'studyBuddy_tasks',
   ROADMAP: 'studyBuddy_roadmap',
+  SAVED_ROADMAPS: 'studyBuddy_savedRoadmaps',
 };
 
 function loadFromStorage(key, fallback = null) {

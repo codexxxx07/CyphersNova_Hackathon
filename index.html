@@ -23,6 +23,7 @@
         <a href="#planner" class="nav-link">Planner</a>
         <a href="#progress" class="nav-link">Progress</a>
         <a href="#chat" class="nav-link">Chat</a>
+        <a href="#saved" class="nav-link">Saved</a>
         <a href="#hero-input" class="btn-brutal-primary text-sm py-2 px-4">Start Planning</a>
         <button type="button" id="theme-toggle" class="btn-brutal-outline ml-4 text-sm py-2 px-4" aria-label="Switch to dark mode">🌙</button>
       </div>
@@ -67,6 +68,28 @@
       <h2 id="roadmap-title" class="section-title mb-2">Your Roadmap</h2>
       <p class="mb-8 font-medium text-gray-600">Follow these steps — one at a time.</p>
       <div id="roadmap-cards" class="flex flex-col gap-4"></div>
+
+      <div id="roadmap-actions" class="mt-8 hidden flex flex-wrap items-center gap-4">
+        <button type="button" id="save-roadmap-btn" class="btn-brutal-primary text-sm py-2 px-4">
+          Save Roadmap
+        </button>
+        <p id="roadmap-saved-msg" class="hidden border-[3px] border-black bg-accent-green px-4 py-2 text-sm font-bold uppercase"
+           style="box-shadow: 4px 4px 0 #000">
+          ✓ Saved to your library
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Saved Roadmaps -->
+  <section id="saved" class="border-b-[3px] border-black bg-offwhite px-4 py-16 md:py-20">
+    <div class="mx-auto max-w-3xl">
+      <h2 class="section-title mb-2">Saved Roadmaps</h2>
+      <p class="mb-8 font-medium text-gray-600">Your saved plans — view anytime or remove what you don't need.</p>
+      <div id="saved-roadmaps-list" class="flex flex-col gap-4"></div>
+      <p id="empty-saved" class="card-brutal text-center font-medium text-gray-600">
+        No saved roadmaps yet. Generate one and click <strong>Save Roadmap</strong> to keep it here.
+      </p>
     </div>
   </section>
 
