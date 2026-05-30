@@ -1084,6 +1084,10 @@ body.dark-mode #chat-messages .text-gray-500 {
   margin-bottom: 2rem;
 }
 
+.ml-4 {
+  margin-left: 1rem;
+}
+
 .ml-8 {
   margin-left: 2rem;
 }
