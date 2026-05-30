@@ -4,6 +4,9 @@ const STORAGE_KEYS = {
   SAVED_ROADMAPS: 'studyBuddy_savedRoadmaps',
 };
 
+const MAX_INPUT_LENGTH = 500;
+const MAX_STEP_DESCRIPTION_LENGTH = 2000;
+
 function loadFromStorage(key, fallback = null) {
   try {
     const raw = localStorage.getItem(key);
@@ -14,7 +17,17 @@ function loadFromStorage(key, fallback = null) {
 }
 
 function saveToStorage(key, value) {
-  localStorage.setItem(key, JSON.stringify(value));
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function clampInput(value, max = MAX_INPUT_LENGTH) {
+  if (value == null) return '';
+  return String(value).trim().slice(0, max);
 }
 
 function matchKeywords(input, keywords) {
@@ -43,12 +56,52 @@ function findChatReply(input) {
   return DEFAULT_CHAT_REPLY;
 }
 
-function generateId() {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-}
-
 function escapeHtml(text) {
   const div = document.createElement('div');
-  div.textContent = text;
+  div.textContent = text == null ? '' : String(text);
   return div.innerHTML;
+}
+
+function normalizeSavedRoadmap(entry) {
+  if (!entry || typeof entry !== 'object') return null;
+  const steps = Array.isArray(entry.steps)
+    ? entry.steps
+        .filter((step) => step && step.title)
+        .map((step) => ({
+          title: clampInput(step.title),
+          description: clampInput(step.description, MAX_STEP_DESCRIPTION_LENGTH),
+        }))
+        .filter((step) => step.title)
+    : [];
+  const title = clampInput(entry.title);
+  if (!title || steps.length === 0) return null;
+  return {
+    id: entry.id != null ? entry.id : Date.now(),
+    title,
+    steps,
+    goalInput: clampInput(entry.goalInput || ''),
+    savedAt: typeof entry.savedAt === 'number' ? entry.savedAt : Date.now(),
+  };
+}
+
+function normalizeStoredTasks(raw) {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .map((task) => {
+      if (!task || typeof task !== 'object') return null;
+      const normalized = {
+        id: typeof task.id === 'number' ? task.id : Date.now(),
+        title: clampInput(task.title || task.text || ''),
+        createdAt:
+          typeof task.createdAt === 'number'
+            ? task.createdAt
+            : typeof task.id === 'number'
+              ? task.id
+              : Date.now(),
+        completed: !!task.completed,
+        status: task.status || (task.completed ? 'completed' : 'pending'),
+      };
+      return normalized.title ? normalized : null;
+    })
+    .filter(Boolean);
 }

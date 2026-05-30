@@ -19,6 +19,7 @@ function updateThemeToggleIcon() {
   const isDark = document.body.classList.contains('dark-mode');
   btn.textContent = isDark ? '☀️' : '🌙';
   btn.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+  btn.setAttribute('aria-pressed', isDark ? 'true' : 'false');
 }
 
 loadTheme();

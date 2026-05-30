@@ -25,7 +25,7 @@
         <a href="#chat" class="nav-link">Chat</a>
         <a href="#saved" class="nav-link">Saved</a>
         <a href="#hero-input" class="btn-brutal-primary text-sm py-2 px-4">Start Planning</a>
-        <button type="button" id="theme-toggle" class="btn-brutal-outline text-sm py-2 px-4" aria-label="Switch to dark mode">🌙</button>
+        <button type="button" id="theme-toggle" class="btn-brutal-outline text-sm py-2 px-4" aria-label="Switch to dark mode" aria-pressed="false">🌙</button>
       </div>
     </div>
   </nav>
@@ -51,6 +51,8 @@
           class="input-brutal min-w-0 text-center text-lg"
           placeholder="e.g. PCB student, want to learn coding"
           autocomplete="off"
+          maxlength="500"
+          aria-required="true"
         />
         <button id="generate-btn" class="btn-brutal-primary mt-4 w-full text-lg">
           Generate Roadmap
@@ -186,6 +188,8 @@
           class="input-brutal flex-1"
           placeholder="What do you need to study?"
           autocomplete="off"
+          maxlength="500"
+          aria-label="New study task"
         />
         <button id="add-task-btn" class="btn-brutal-secondary whitespace-nowrap">Add Task</button>
       </div>
@@ -258,6 +262,8 @@
           class="input-brutal flex-1"
           placeholder="e.g. How do I start coding?"
           autocomplete="off"
+          maxlength="500"
+          aria-label="Chat message"
         />
         <button id="chat-send-btn" class="btn-brutal-primary whitespace-nowrap">Send</button>
       </div>

@@ -1,5 +1,5 @@
 function normalizeTask(task) {
-  const title = (task.title || task.text || '').trim();
+  const title = clampInput(task.title || task.text || '');
   const createdAt =
     typeof task.createdAt === 'number'
       ? task.createdAt
@@ -53,13 +53,21 @@ function formatTaskDateTime(timestamp) {
 }
 
 const rawTasks = loadFromStorage(STORAGE_KEYS.TASKS, []);
-let tasks = rawTasks.map(normalizeTask);
-if (rawTasks.some((t) => t.text && !t.title)) {
+const tasksArray = Array.isArray(rawTasks) ? rawTasks : [];
+let tasks = normalizeStoredTasks(tasksArray).map(normalizeTask);
+if (tasksArray.some((t) => t && t.text && !t.title)) {
   saveToStorage(STORAGE_KEYS.TASKS, tasks);
 }
 let editingTaskId = null;
-let savedRoadmaps = loadFromStorage(STORAGE_KEYS.SAVED_ROADMAPS, []);
+const rawSavedRoadmaps = loadFromStorage(STORAGE_KEYS.SAVED_ROADMAPS, []);
+let savedRoadmaps = Array.isArray(rawSavedRoadmaps)
+  ? rawSavedRoadmaps.map(normalizeSavedRoadmap).filter(Boolean)
+  : [];
+if (Array.isArray(rawSavedRoadmaps) && savedRoadmaps.length !== rawSavedRoadmaps.length) {
+  saveToStorage(STORAGE_KEYS.SAVED_ROADMAPS, savedRoadmaps);
+}
 let pendingRoadmap = null;
+let dynamicModalEscapeHandler = null;
 
 const heroInput = document.getElementById('hero-input');
 const generateBtn = document.getElementById('generate-btn');
@@ -116,11 +124,37 @@ let roadmapLoadingTimers = [];
 let roadmapLoadingActive = false;
 
 function clearRoadmapLoadingTimers() {
-  roadmapLoadingTimers.forEach((id) => {
-    clearTimeout(id);
-    clearInterval(id);
-  });
+  roadmapLoadingTimers.forEach((id) => clearTimeout(id));
   roadmapLoadingTimers = [];
+}
+
+function queryByDataId(container, id) {
+  const safeId =
+    typeof CSS !== 'undefined' && CSS.escape ? CSS.escape(String(id)) : String(id);
+  return container.querySelector(`[data-id="${safeId}"]`);
+}
+
+function removeDynamicModalEscapeHandler() {
+  if (!dynamicModalEscapeHandler) return;
+  document.removeEventListener('keydown', dynamicModalEscapeHandler);
+  dynamicModalEscapeHandler = null;
+}
+
+function bindDynamicModalEscape(overlay, onEscape) {
+  removeDynamicModalEscapeHandler();
+  dynamicModalEscapeHandler = (e) => {
+    if (e.key !== 'Escape') return;
+    onEscape();
+  };
+  document.addEventListener('keydown', dynamicModalEscapeHandler);
+}
+
+function closeDynamicModal(overlay) {
+  removeDynamicModalEscapeHandler();
+  if (overlay && overlay.isConnected) overlay.remove();
+  if (!document.querySelector('[data-dynamic-modal]') && !heroValidationAlert.classList.contains('flex')) {
+    document.body.classList.remove('overflow-hidden');
+  }
 }
 
 function stopRoadmapLoading() {
@@ -167,7 +201,7 @@ function scheduleRoadmapLoadingTimer(callback, delay) {
 }
 
 function renderRoadmap(data, { fromSaved = false } = {}) {
-  if (!data) return;
+  if (!data || !Array.isArray(data.steps) || data.steps.length === 0) return;
 
   stopRoadmapLoading();
 
@@ -253,13 +287,14 @@ function renderSavedRoadmaps() {
 function savePendingRoadmap() {
   if (!pendingRoadmap || isRoadmapSaved(pendingRoadmap.id)) return;
 
-  const entry = {
+  const entry = normalizeSavedRoadmap({
     id: pendingRoadmap.id,
     title: pendingRoadmap.title,
     steps: pendingRoadmap.steps,
     goalInput: pendingRoadmap.goalInput || '',
     savedAt: Date.now(),
-  };
+  });
+  if (!entry) return;
 
   savedRoadmaps.unshift(entry);
   saveToStorage(STORAGE_KEYS.SAVED_ROADMAPS, savedRoadmaps);
@@ -271,7 +306,7 @@ function deleteSavedRoadmap(id) {
   savedRoadmaps = savedRoadmaps.filter((r) => r.id !== id);
   saveToStorage(STORAGE_KEYS.SAVED_ROADMAPS, savedRoadmaps);
 
-  const card = savedRoadmapsList.querySelector(`[data-id="${id}"]`);
+  const card = queryByDataId(savedRoadmapsList, id);
   if (card) card.remove();
 
   emptySaved.classList.toggle('hidden', savedRoadmaps.length > 0);
@@ -281,15 +316,14 @@ function deleteSavedRoadmap(id) {
   }
 }
 
-function closeDeleteConfirmModal(overlay) {
-  overlay.remove();
-  document.body.classList.remove('overflow-hidden');
-}
-
 function showDeleteConfirmModal(roadmapId) {
+  const existing = document.querySelector('[data-dynamic-modal="delete-roadmap"]');
+  if (existing) return;
+
   const overlay = document.createElement('div');
   overlay.className =
     'fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4';
+  overlay.setAttribute('data-dynamic-modal', 'delete-roadmap');
   overlay.setAttribute('role', 'dialog');
   overlay.setAttribute('aria-modal', 'true');
   overlay.setAttribute('aria-labelledby', 'delete-confirm-message');
@@ -313,14 +347,17 @@ function showDeleteConfirmModal(roadmapId) {
   document.body.appendChild(overlay);
   document.body.classList.add('overflow-hidden');
 
+  const cancelBtn = overlay.querySelector('.delete-confirm-cancel');
+  const closeModal = () => closeDynamicModal(overlay);
+
   overlay.querySelector('.delete-confirm-yes').addEventListener('click', () => {
     deleteSavedRoadmap(roadmapId);
-    closeDeleteConfirmModal(overlay);
+    closeModal();
   });
 
-  overlay.querySelector('.delete-confirm-cancel').addEventListener('click', () => {
-    closeDeleteConfirmModal(overlay);
-  });
+  cancelBtn.addEventListener('click', closeModal);
+  bindDynamicModalEscape(overlay, closeModal);
+  cancelBtn.focus();
 }
 
 function migrateLegacyRoadmap() {
@@ -331,14 +368,17 @@ function migrateLegacyRoadmap() {
     (r) => r.title === legacy.title && r.steps.length === legacy.steps.length
   );
   if (!alreadyMigrated) {
-    savedRoadmaps.unshift({
+    const entry = normalizeSavedRoadmap({
       id: Date.now(),
       title: legacy.title,
       steps: legacy.steps,
       goalInput: '',
       savedAt: Date.now(),
     });
-    saveToStorage(STORAGE_KEYS.SAVED_ROADMAPS, savedRoadmaps);
+    if (entry) {
+      savedRoadmaps.unshift(entry);
+      saveToStorage(STORAGE_KEYS.SAVED_ROADMAPS, savedRoadmaps);
+    }
   }
   localStorage.removeItem(STORAGE_KEYS.ROADMAP);
 }
@@ -363,7 +403,7 @@ function resetGenerateButton(originalText) {
 }
 
 function handleGenerateRoadmap() {
-  const input = heroInput.value.trim();
+  const input = clampInput(heroInput.value);
   if (!input) {
     showHeroValidationAlert();
     return;
@@ -462,6 +502,7 @@ function renderTasks() {
             value="${escapeHtml(getTaskTitle(task))}"
             aria-label="Edit task title"
             autocomplete="off"
+            maxlength="500"
           />
           <p class="text-xs font-medium text-gray-500">${escapeHtml(formatTaskDateTime(task.createdAt))}</p>
         </div>
@@ -537,7 +578,7 @@ function renderTasks() {
   });
 
   if (editingTaskId !== null) {
-    const editInput = taskList.querySelector(`[data-id="${editingTaskId}"] .task-edit-input`);
+    const editInput = queryByDataId(taskList, editingTaskId)?.querySelector('.task-edit-input');
     if (editInput) {
       editInput.focus();
       editInput.select();
@@ -548,7 +589,7 @@ function renderTasks() {
 }
 
 function addTask() {
-  const title = taskInput.value.trim();
+  const title = clampInput(taskInput.value);
   if (!title) {
     taskInput.focus();
     return;
@@ -583,9 +624,9 @@ function startTaskEdit(id) {
 }
 
 function saveTaskEdit(id, rawTitle) {
-  const title = rawTitle.trim();
+  const title = clampInput(rawTitle);
   if (!title) {
-    const editInput = taskList.querySelector(`[data-id="${id}"] .task-edit-input`);
+    const editInput = queryByDataId(taskList, id)?.querySelector('.task-edit-input');
     editInput?.focus();
     return;
   }
@@ -608,9 +649,13 @@ function deleteTask(id) {
 }
 
 function showTaskDeleteConfirmModal(taskId) {
+  const existing = document.querySelector('[data-dynamic-modal="delete-task"]');
+  if (existing) return;
+
   const overlay = document.createElement('div');
   overlay.className =
     'fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4';
+  overlay.setAttribute('data-dynamic-modal', 'delete-task');
   overlay.setAttribute('role', 'dialog');
   overlay.setAttribute('aria-modal', 'true');
   overlay.setAttribute('aria-labelledby', 'task-delete-confirm-message');
@@ -634,14 +679,17 @@ function showTaskDeleteConfirmModal(taskId) {
   document.body.appendChild(overlay);
   document.body.classList.add('overflow-hidden');
 
+  const cancelBtn = overlay.querySelector('.task-delete-confirm-cancel');
+  const closeModal = () => closeDynamicModal(overlay);
+
   overlay.querySelector('.task-delete-confirm-yes').addEventListener('click', () => {
     deleteTask(taskId);
-    closeDeleteConfirmModal(overlay);
+    closeModal();
   });
 
-  overlay.querySelector('.task-delete-confirm-cancel').addEventListener('click', () => {
-    closeDeleteConfirmModal(overlay);
-  });
+  cancelBtn.addEventListener('click', closeModal);
+  bindDynamicModalEscape(overlay, closeModal);
+  cancelBtn.focus();
 }
 
 function renderPendingTasks() {
@@ -661,7 +709,7 @@ function renderPendingTasks() {
     const row = document.createElement('div');
     row.className = 'progress-pending-item';
     const badgeClass = getTaskStatusBadgeClass(task.status);
-    const statusLabel = getTaskStatusLabel(task);
+    const statusLabel = getTaskStatusLabel(task) || 'Pending';
 
     row.innerHTML = `
       <p class="min-w-0 flex-1 break-words font-bold text-black">${escapeHtml(getTaskTitle(task))}</p>
@@ -705,7 +753,7 @@ function appendChatMessage(text, isUser) {
 }
 
 function handleChatSend() {
-  const text = chatInput.value.trim();
+  const text = clampInput(chatInput.value);
   if (!text) {
     chatInput.focus();
     return;
@@ -744,30 +792,38 @@ function init() {
   renderTasks();
   renderSavedRoadmaps();
 
+  const heroValidationMessage = document.getElementById('hero-validation-message');
+  const defaultHeroValidationMessage =
+    '⚠️ Please enter your study goal or situation first!';
+
+  const showContextValidationAlert = (message, focusEl) => {
+    heroValidationMessage.textContent = message;
+    showHeroValidationAlert();
+    focusEl?.focus();
+    const restoreHeroValidationMessage = () => {
+      heroValidationMessage.textContent = defaultHeroValidationMessage;
+    };
+    heroValidationOk.addEventListener('click', restoreHeroValidationMessage, { once: true });
+    heroValidationClose.addEventListener('click', restoreHeroValidationMessage, {
+      once: true,
+    });
+  };
+
   generateBtn.addEventListener('click', handleGenerateRoadmap);
   saveRoadmapBtn.addEventListener('click', savePendingRoadmap);
   heroValidationOk.addEventListener('click', hideHeroValidationAlert);
   heroValidationClose.addEventListener('click', hideHeroValidationAlert);
   heroInput.addEventListener('input', hideHeroValidationAlert);
+  heroValidationAlert.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') hideHeroValidationAlert();
+  });
   heroInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') handleGenerateRoadmap();
   });
 
   addTaskBtn.addEventListener('click', () => {
-    if (!taskInput.value.trim()) {
-      const heroValidationMessage = document.getElementById('hero-validation-message');
-      const defaultHeroValidationMessage =
-        '⚠️ Please enter your study goal or situation first!';
-      heroValidationMessage.textContent = '⚠️ Please enter a task before adding.';
-      showHeroValidationAlert();
-      taskInput.focus();
-      const restoreHeroValidationMessage = () => {
-        heroValidationMessage.textContent = defaultHeroValidationMessage;
-      };
-      heroValidationOk.addEventListener('click', restoreHeroValidationMessage, { once: true });
-      heroValidationClose.addEventListener('click', restoreHeroValidationMessage, {
-        once: true,
-      });
+    if (!clampInput(taskInput.value)) {
+      showContextValidationAlert('⚠️ Please enter a task before adding.', taskInput);
       return;
     }
     addTask();
@@ -777,20 +833,8 @@ function init() {
   });
 
   chatSendBtn.addEventListener('click', () => {
-    if (!chatInput.value.trim()) {
-      const heroValidationMessage = document.getElementById('hero-validation-message');
-      const defaultHeroValidationMessage =
-        '⚠️ Please enter your study goal or situation first!';
-      heroValidationMessage.textContent = '⚠️ Please enter a message.';
-      showHeroValidationAlert();
-      chatInput.focus();
-      const restoreHeroValidationMessage = () => {
-        heroValidationMessage.textContent = defaultHeroValidationMessage;
-      };
-      heroValidationOk.addEventListener('click', restoreHeroValidationMessage, { once: true });
-      heroValidationClose.addEventListener('click', restoreHeroValidationMessage, {
-        once: true,
-      });
+    if (!clampInput(chatInput.value)) {
+      showContextValidationAlert('⚠️ Please enter a message.', chatInput);
       return;
     }
     handleChatSend();
