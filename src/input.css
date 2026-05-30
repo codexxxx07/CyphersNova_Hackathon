@@ -1,0 +1,95 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-offwhite text-black font-sans antialiased;
+  }
+}
+
+@layer components {
+  .btn-brutal {
+    @apply inline-flex items-center justify-center px-6 py-3 font-bold border-[3px] border-black transition-all duration-150;
+    box-shadow: 4px 4px 0px 0px #000000;
+  }
+
+  .btn-brutal:hover {
+    @apply translate-x-[2px] translate-y-[2px];
+    box-shadow: 2px 2px 0px 0px #000000;
+  }
+
+  .btn-brutal:active {
+    @apply translate-x-[4px] translate-y-[4px];
+    box-shadow: none;
+  }
+
+  .btn-brutal-primary {
+    @apply btn-brutal bg-accent-blue text-white;
+  }
+
+  .btn-brutal-primary:hover {
+    @apply bg-black text-white;
+  }
+
+  .btn-brutal-secondary {
+    @apply btn-brutal bg-accent-green text-black;
+  }
+
+  .btn-brutal-secondary:hover {
+    @apply bg-black text-accent-green;
+  }
+
+  .btn-brutal-outline {
+    @apply btn-brutal bg-white text-black;
+  }
+
+  .btn-brutal-outline:hover {
+    @apply bg-black text-white;
+  }
+
+  .card-brutal {
+    @apply border-[3px] border-black bg-white p-6;
+    box-shadow: 4px 4px 0px 0px #000000;
+  }
+
+  .input-brutal {
+    @apply w-full border-[3px] border-black bg-white px-4 py-3 font-medium outline-none transition-all;
+    box-shadow: 3px 3px 0px 0px #000000;
+  }
+
+  .input-brutal:focus {
+    @apply border-accent-blue;
+    box-shadow: 3px 3px 0px 0px #2563eb;
+  }
+
+  .nav-link {
+    @apply font-bold border-b-[3px] border-transparent hover:border-black transition-colors;
+  }
+
+  .section-title {
+    @apply text-3xl md:text-4xl font-black uppercase tracking-tight;
+  }
+}
+
+@layer utilities {
+  .animate-fade-slide {
+    animation: fadeSlide 0.4s ease-out forwards;
+    opacity: 0;
+  }
+
+  @keyframes fadeSlide {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}

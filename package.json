@@ -1,0 +1,12 @@
+{
+  "name": "study-buddy",
+  "version": "1.0.0",
+  "description": "Study Buddy - Turn your goals into a clear roadmap",
+  "scripts": {
+    "build:css": "tailwindcss -i ./src/input.css -o ./dist/output.css",
+    "watch:css": "tailwindcss -i ./src/input.css -o ./dist/output.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.17"
+  }
+}

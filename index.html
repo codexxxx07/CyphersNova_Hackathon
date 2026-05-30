@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Study Buddy — Turn Goals Into Roadmaps</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="dist/output.css" />
+</head>
+<body class="min-h-screen">
+
+  <!-- Navbar -->
+  <nav class="sticky top-0 z-50 border-b-[3px] border-black bg-offwhite">
+    <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-4 md:px-6">
+      <a href="#home" class="text-xl font-black uppercase tracking-tight hover:text-accent-blue transition-colors">
+        Study Buddy
+      </a>
+      <div class="flex flex-wrap items-center gap-6">
+        <a href="#home" class="nav-link">Home</a>
+        <a href="#planner" class="nav-link">Planner</a>
+        <a href="#progress" class="nav-link">Progress</a>
+        <a href="#chat" class="nav-link">Chat</a>
+        <a href="#hero-input" class="btn-brutal-primary text-sm py-2 px-4">Start Planning</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section id="home" class="border-b-[3px] border-black px-4 py-16 md:py-24">
+    <div class="mx-auto max-w-4xl text-center">
+      <span class="inline-block border-[3px] border-black bg-accent-green px-4 py-1 text-sm font-bold uppercase mb-6"
+            style="box-shadow: 3px 3px 0 #000">
+        For Students Who Want Clarity
+      </span>
+      <h1 class="text-4xl font-black uppercase leading-tight tracking-tight md:text-6xl lg:text-7xl">
+        Confused About<br />Your Future?
+      </h1>
+      <p class="mx-auto mt-6 max-w-2xl text-lg font-medium text-gray-700 md:text-xl">
+        Turn your goals into a clear roadmap in seconds.
+      </p>
+
+      <div class="mx-auto mt-10 max-w-xl">
+        <input
+          id="hero-input"
+          type="text"
+          class="input-brutal text-center text-lg"
+          placeholder="e.g. PCB student, want to learn coding"
+          autocomplete="off"
+        />
+        <button id="generate-btn" class="btn-brutal-primary mt-4 w-full text-lg">
+          Generate Roadmap
+        </button>
+        <p class="mt-4 text-sm font-medium text-gray-600">
+          Try keywords like <strong>coding</strong>, <strong>NEET</strong>, or <strong>business</strong>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Roadmap -->
+  <section id="roadmap" class="hidden border-b-[3px] border-black px-4 py-16 md:py-20">
+    <div class="mx-auto max-w-3xl">
+      <h2 id="roadmap-title" class="section-title mb-2">Your Roadmap</h2>
+      <p class="mb-8 font-medium text-gray-600">Follow these steps — one at a time.</p>
+      <div id="roadmap-cards" class="flex flex-col gap-4"></div>
+    </div>
+  </section>
+
+  <!-- Planner -->
+  <section id="planner" class="border-b-[3px] border-black bg-white px-4 py-16 md:py-20">
+    <div class="mx-auto max-w-3xl">
+      <h2 class="section-title mb-2">Study Planner</h2>
+      <p class="mb-8 font-medium text-gray-600">Add tasks and check them off as you go.</p>
+
+      <div class="flex flex-col gap-3 sm:flex-row">
+        <input
+          id="task-input"
+          type="text"
+          class="input-brutal flex-1"
+          placeholder="Add a study task..."
+          autocomplete="off"
+        />
+        <button id="add-task-btn" class="btn-brutal-secondary whitespace-nowrap">Add Task</button>
+      </div>
+
+      <ul id="task-list" class="mt-8 flex flex-col gap-3"></ul>
+      <p id="empty-tasks" class="mt-6 text-center font-medium text-gray-500">
+        No tasks yet. Add your first study task above!
+      </p>
+    </div>
+  </section>
+
+  <!-- Progress -->
+  <section id="progress" class="border-b-[3px] border-black px-4 py-16 md:py-20">
+    <div class="mx-auto max-w-3xl">
+      <h2 class="section-title mb-2">Progress Tracker</h2>
+      <p class="mb-8 font-medium text-gray-600">See how far you've come.</p>
+
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div class="card-brutal text-center">
+          <p class="text-sm font-bold uppercase tracking-wide text-gray-500">Total Tasks</p>
+          <p id="stat-total" class="mt-2 text-5xl font-black">0</p>
+        </div>
+        <div class="card-brutal text-center bg-accent-green">
+          <p class="text-sm font-bold uppercase tracking-wide">Completed</p>
+          <p id="stat-completed" class="mt-2 text-5xl font-black">0</p>
+        </div>
+      </div>
+
+      <div class="card-brutal mt-6">
+        <div class="mb-3 flex items-center justify-between font-bold">
+          <span>Overall Progress</span>
+          <span id="progress-percent">0%</span>
+        </div>
+        <div class="h-8 border-[3px] border-black bg-offwhite">
+          <div
+            id="progress-bar"
+            class="h-full bg-accent-blue transition-all duration-500"
+            style="width: 0%"
+          ></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Chat -->
+  <section id="chat" class="px-4 py-16 md:py-20">
+    <div class="mx-auto max-w-3xl">
+      <h2 class="section-title mb-2">Doubt Assistant</h2>
+      <p class="mb-8 font-medium text-gray-600">Ask anything — get quick, helpful tips.</p>
+
+      <div id="chat-messages" class="card-brutal mb-4 flex max-h-96 flex-col gap-4 overflow-y-auto">
+        <div class="border-[3px] border-black bg-offwhite p-4">
+          <p class="text-xs font-bold uppercase text-gray-500 mb-1">Study Buddy</p>
+          <p>Hey! I'm your doubt assistant. Ask me about coding, timetables, NEET prep, exams, or motivation.</p>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-3 sm:flex-row">
+        <input
+          id="chat-input"
+          type="text"
+          class="input-brutal flex-1"
+          placeholder="e.g. How do I start coding?"
+          autocomplete="off"
+        />
+        <button id="chat-send-btn" class="btn-brutal-primary whitespace-nowrap">Send</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="border-t-[3px] border-black bg-black px-4 py-8 text-center text-white">
+    <p class="font-bold uppercase tracking-wide">Study Buddy</p>
+    <p class="mt-2 text-sm text-gray-400">Built for students. No backend needed.</p>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="utils.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
